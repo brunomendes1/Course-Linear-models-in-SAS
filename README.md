@@ -1,1 +1,1 @@
-# Course-Linear-models-in-SAS
+# My-course-on-Linear-models-wit-h SAS
