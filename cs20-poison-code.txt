@@ -1,0 +1,42 @@
+options ls=80 ps=50 nodate pageno=1;
+data mice2;
+input poison 1. @;
+do drug=1 to 4;
+input time 3.2 @;
+output;
+end;
+datalines;
+1 31 82 43 .
+1 45110 45 71
+1 46 . 63 66
+1 43 . 76 62
+2 36 . 44 56
+2 . 61 35 .
+2 40 49 31 71
+2 . . 40 38
+3 22 30 23 30
+3 21 37 25 36
+3 18 38 . .
+3 23 . 22 .
+;
+run;
+
+proc glm data=mice2;
+class poison drug;
+model time = poison drug poison*drug/ss3 solution;
+means poison drug;
+lsmeans poison/stderr cl pdiff tdiff adjust=tukey;
+lsmeans drug /stderr cl pdiff tdiff adjust=tukey;
+contrast ‘poison 1 vs 2’ poison 1 -1;
+/* just to show how GLM fills out some coeff's automatically */
+contrast ‘poison 1 vs 2 *’ poison -1 1
+poison*drug -.25 -.25 -.25 -.25 .25 .25 .25 .25;
+contrast ‘drug A&B vs C&D’ drug 1 1 -1 -1;
+estimate ‘poison 1 vs 2’ poison 1 -1;
+estimate ‘poison 1 mean’ intercept 1
+poison 1 0 0
+drug .25 .25 .25 .25
+poison*drug .25 .25 .25 .25;
+estimate ‘drug A @ poison 1-2’ poison -1 1 poison*drug -1 0 0 0 1;
+title ‘Analysis of Two-Way Data : Unequal Sample Sizes’;
+run;
